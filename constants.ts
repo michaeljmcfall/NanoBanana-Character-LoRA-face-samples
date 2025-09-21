@@ -1,4 +1,3 @@
-
 import type { Angle, Expression, SubjectType, OutputResolution } from './types';
 
 export const ANGLES: Angle[] = [
@@ -25,7 +24,9 @@ export const SUBJECT_TYPES: SubjectType[] = [
   'Male',
   'Female',
   'Non-binary',
-  'Non-human / Object',
+  'Cartoon / 3D CGI Character',
+  'Humanoid Creature',
+  'Object',
 ];
 
 export const OUTPUT_RESOLUTIONS: OutputResolution[] = [

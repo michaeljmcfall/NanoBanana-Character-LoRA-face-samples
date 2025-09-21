@@ -2,7 +2,7 @@ export type Angle = 'Front View' | 'Three-Quarter Left' | 'Profile Left' | 'Thre
 
 export type Expression = 'Neutral' | 'Smiling' | 'Laughing' | 'Sad' | 'Angry' | 'Surprised' | 'Thoughtful';
 
-export type SubjectType = 'Male' | 'Female' | 'Non-binary' | 'Non-human / Object';
+export type SubjectType = 'Male' | 'Female' | 'Non-binary' | 'Cartoon / 3D CGI Character' | 'Humanoid Creature' | 'Object';
 
 export type OutputResolution = '512x512' | '768x768' | '1024x1024';
 

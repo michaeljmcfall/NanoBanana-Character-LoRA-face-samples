@@ -41,7 +41,50 @@ function buildPrompt(config: GenerationConfig): string {
     
   const [width, height] = config.outputResolution.split('x');
 
-  return `
+  const commonModifiers = `
+You can apply the following stylistic modifications if specified:
+- **Hair:** ${hairInstruction}
+- **Clothing:** ${clothingInstruction}
+- **Background:** ${backgroundInstruction}
+  `.trim();
+
+  switch (config.subjectType) {
+    case 'Cartoon / 3D CGI Character':
+    case 'Humanoid Creature':
+      return `
+You are an expert character artist and 3D modeler. Your task is to generate a new image of the character in the provided reference photo. The new image must strictly adhere to the following criteria:
+
+1.  **Angle:** ${config.angle}.
+2.  **Expression:** ${config.expression}.
+3.  **Subject Type:** ${config.subjectType}.
+4.  **Morphology and Design Preservation:** This is the most critical rule. You MUST preserve the character's unique physical structure, design features, art style, color palette, and proportions from the reference image. The generated image must look like the exact same character, just from a different angle and with a different expression.
+
+${commonModifiers}
+
+The output image must be a high-quality, professional digital artwork with a resolution of ${width}x${height} pixels. Do not add any text or watermarks.
+      `.trim();
+    
+    case 'Object':
+        const expressionAsLighting = `For an object, interpret '${config.expression}' as a lighting and mood instruction. For example, 'Smiling' could be bright, cheerful lighting, while 'Angry' could be harsh, dramatic, high-contrast lighting.`;
+        return `
+You are an expert product and still life photographer. Your task is to generate a new image of the object in the provided reference photo. The new image must strictly adhere to the following criteria:
+
+1.  **Angle:** ${config.angle}.
+2.  **Lighting & Mood:** ${expressionAsLighting}
+3.  **Subject Type:** ${config.subjectType}.
+4.  **Design and Shape Preservation:** This is the most critical rule. You MUST preserve the object's unique structure, shape, texture, materials, colors, and any intricate details from the reference image. The generated image must look like the exact same object, just from a different angle and with different lighting.
+
+You can apply the following stylistic modifications if specified:
+- **Background:** ${backgroundInstruction}
+
+The output image must be a high-quality, photorealistic product shot with a resolution of ${width}x${height} pixels. Do not add any text or watermarks.
+      `.trim();
+
+    case 'Male':
+    case 'Female':
+    case 'Non-binary':
+    default:
+      return `
 You are an expert photorealistic image editor. Your task is to generate a new image of the person in the provided reference photo. The new image must strictly adhere to the following criteria:
 
 1.  **Angle:** ${config.angle}.
@@ -49,13 +92,11 @@ You are an expert photorealistic image editor. Your task is to generate a new im
 3.  **Subject Type:** ${config.subjectType}.
 4.  **Identity Preservation:** This is the most critical rule. You MUST preserve the person's unique facial structure, features, skin texture, moles, scars, and any asymmetries from the reference image. The generated image must look like the exact same person, just from a different angle and with a different expression.
 
-You can apply the following stylistic modifications if specified:
-- **Hair:** ${hairInstruction}
-- **Clothing:** ${clothingInstruction}
-- **Background:** ${backgroundInstruction}
+${commonModifiers}
 
 The output image must be a high-quality, photorealistic portrait with a resolution of ${width}x${height} pixels. Do not add any text or watermarks.
-  `.trim();
+      `.trim();
+  }
 }
 
 export async function generateImageVariation(

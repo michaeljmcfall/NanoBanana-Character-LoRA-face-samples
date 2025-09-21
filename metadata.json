@@ -1,0 +1,5 @@
+{
+  "name": "Michael's Facial LoRA Sample Generator",
+  "description": "An AI-powered tool to generate images of a subject's face from various angles and with different expressions, designed to create consistent training data for LoRA models.",
+  "requestFramePermissions": []
+}

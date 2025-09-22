@@ -1,7 +1,7 @@
 
 import React, { useState, useCallback } from 'react';
 import JSZip from 'jszip';
-import type { GenerationConfig, GeneratedImage, OptimizedImage, LogEntry, LogType, ReferenceImageInfo } from './types';
+import type { GenerationConfig, GeneratedImage, OptimizedImage, LogEntry, LogType, ReferenceImageInfo, AngleX, AngleY } from './types';
 import { ANGLES_X, ANGLES_Y, EXPRESSIONS, SUBJECT_TYPES, OUTPUT_RESOLUTIONS } from './constants';
 import Header from './components/Header';
 import ImageUploader from './components/ImageUploader';
@@ -15,6 +15,7 @@ import ImageModal from './components/ImageModal';
 import Icon from './components/Icon';
 import Disclaimer from './components/Disclaimer';
 import Usage from './components/Usage';
+import AngleTipModal from './components/AngleTipModal';
 import { generateImageVariation, optimizeReferenceImage } from './services/geminiService';
 
 const App: React.FC = () => {
@@ -32,6 +33,17 @@ const App: React.FC = () => {
   const [lastPrompt, setLastPrompt] = useState<string>('');
   const [modalImageUrl, setModalImageUrl] = useState<string | null>(null);
   const [selectedImageIds, setSelectedImageIds] = useState<Set<string>>(new Set());
+  
+  const [requestHistory, setRequestHistory] = useState<{ angleX: AngleX; angleY: AngleY }[]>([]);
+  const [showAngleTipModal, setShowAngleTipModal] = useState<boolean>(false);
+  const [hideAngleTip, setHideAngleTip] = useState<boolean>(() => {
+    try {
+        return localStorage.getItem('hideAngleTip') === 'true';
+    } catch (e) {
+        console.warn("Could not access localStorage.", e);
+        return false;
+    }
+  });
 
 
   const addLog = useCallback((type: LogType, message: string) => {
@@ -78,6 +90,21 @@ const App: React.FC = () => {
       addLog('error', 'Cannot generate: Please upload a reference image first.');
       return;
     }
+    
+    // Logic to trigger the helpful tip modal
+    const newRequest = { angleX: config.angleX, angleY: config.angleY };
+    const updatedHistory = [...requestHistory, newRequest].slice(-3);
+    setRequestHistory(updatedHistory);
+
+    const extremeAngles: AngleX[] = ['Profile Left', 'Three-Quarter Left', 'Three-Quarter Right', 'Profile Right'];
+    const isExtremeAngle = extremeAngles.includes(config.angleX);
+    const isRepeatedRequest = 
+        updatedHistory.length === 3 &&
+        updatedHistory.every(req => req.angleX === config.angleX && req.angleY === config.angleY);
+
+    if (!hideAngleTip && isExtremeAngle && isRepeatedRequest) {
+        setShowAngleTipModal(true);
+    }
 
     setIsLoading(true);
     addLog('info', `Generating ${config.outputResolution} image with angle: ${config.angleX}, ${config.angleY}...`);
@@ -102,7 +129,7 @@ const App: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [referenceImage, selectedOptimizedImage, config, addLog]);
+  }, [referenceImage, selectedOptimizedImage, config, addLog, requestHistory, hideAngleTip]);
 
   const handleOptimize = useCallback(async () => {
     if (!referenceImage) return;
@@ -261,6 +288,20 @@ const App: React.FC = () => {
     }
   }, [generatedImages, selectedImageIds, addLog]);
 
+  const handleCloseAngleTipModal = () => {
+    setShowAngleTipModal(false);
+  };
+
+  const handleDisableAngleTip = () => {
+      setHideAngleTip(true);
+      try {
+          localStorage.setItem('hideAngleTip', 'true');
+      } catch (e) {
+          console.error("Could not save preference to localStorage", e);
+      }
+      setShowAngleTipModal(false);
+  };
+
   const displayedReferenceImageSrc = selectedOptimizedImage?.src || referenceImage?.src;
   const referenceImageResolution = referenceImage ? `${referenceImage.width}x${referenceImage.height}` : null;
 
@@ -377,6 +418,12 @@ const App: React.FC = () => {
           </div>
         </div>
       </main>
+      {showAngleTipModal && (
+          <AngleTipModal
+              onClose={handleCloseAngleTipModal}
+              onDontShowAgain={handleDisableAngleTip}
+          />
+      )}
        {modalImageUrl && (
         <ImageModal imageUrl={modalImageUrl} onClose={() => setModalImageUrl(null)} />
       )}

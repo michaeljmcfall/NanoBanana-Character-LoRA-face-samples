@@ -1,4 +1,3 @@
-
 import React from 'react';
 import type { GeneratedImage } from '../types';
 import Spinner from './Spinner';
@@ -170,6 +169,11 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
           </div>
         )}
       </div>
+      {images.length > 0 && (
+          <p className="text-xs text-gray-500 text-center px-2 mt-3">
+              <strong>Tip:</strong> If the AI struggles with extreme angles (e.g., a profile view), using a successful 3/4 view as the new reference can provide better context for the rotation.
+          </p>
+      )}
     </div>
   );
 };

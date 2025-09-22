@@ -9,6 +9,10 @@ const Usage: React.FC = () => {
         <p>
           This tool is designed to generate consistent image concepts for training LoRA (Low-Rank Adaptation) models in diffusion-based image generators. It specializes in creating varied headshots of a subject from multiple angles and with different expressions while preserving their core facial morphology.
         </p>
+        <h3 className="text-base font-semibold text-gray-300 pt-2">Optimized References</h3>
+        <p>
+            The "Optimize Reference Image" button attempts to create a better source file for image generation. This is particularly useful if your original reference image is low-resolution or has a busy background. The tool will try to standardize the image by centering the subject, removing the background, and resizing it, which helps prevent background elements from interfering with the creation of clean LoRA training data samples.
+        </p>
         <h3 className="text-base font-semibold text-gray-300 pt-2">Optional Modifiers</h3>
         <p>
             These settings are crucial for preventing your LoRA from "overfitting" or locking onto unintended concepts from your training images.
@@ -18,6 +22,9 @@ const Usage: React.FC = () => {
         </p>
         <p>
             If you want to train a specific hairstyle or outfit as part of the concept, leave "Random" disabled and describe it in the text box.
+        </p>
+         <p>
+            Overall, this tool is intended to save you significant time through streamlined prompting, organized sample curation, and convenient batch downloading, letting you focus on training your LoRA.
         </p>
       </div>
     </div>

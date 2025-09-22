@@ -68,7 +68,8 @@ const ImageCard: React.FC<{
       {/* Main Overlay with Info and Actions */}
       <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-3 pointer-events-none">
         <div className="text-xs text-gray-300 overflow-y-auto max-h-full pointer-events-auto">
-            <p><strong className="text-orange-400">Angle:</strong> {image.config.angle}</p>
+            <p><strong className="text-orange-400">H-Angle:</strong> {image.config.angleX}</p>
+            <p><strong className="text-orange-400">V-Angle:</strong> {image.config.angleY}</p>
             <p><strong className="text-orange-400">Expression:</strong> {image.config.expression}</p>
             <p><strong className="text-orange-400">Subject:</strong> {image.config.subjectType}</p>
             {(image.config.randomHair || image.config.hair) && <p><strong className="text-orange-400">Hair:</strong> {image.config.randomHair ? 'Random' : image.config.hair}</p>}

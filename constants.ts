@@ -1,13 +1,19 @@
-import type { Angle, Expression, SubjectType, OutputResolution } from './types';
+import type { Expression, SubjectType, OutputResolution, AngleX, AngleY } from './types';
 
-export const ANGLES: Angle[] = [
-  'Front View',
-  'Three-Quarter Left',
-  'Profile Left',
-  'Three-Quarter Right',
-  'Profile Right',
-  'Slightly Above',
-  'Slightly Below',
+export const ANGLES_X: { value: AngleX; label: string; icon: React.ReactNode }[] = [
+  { value: 'Profile Left', label: 'Profile L', icon: 'profile-left' },
+  { value: 'Three-Quarter Left', label: '3/4 L', icon: 'tq-left' },
+  { value: 'Front View', label: 'Front', icon: 'front' },
+  { value: 'Three-Quarter Right', label: '3/4 R', icon: 'tq-right' },
+  { value: 'Profile Right', label: 'Profile R', icon: 'profile-right' },
+];
+
+export const ANGLES_Y: { value: AngleY; label: string; icon: React.ReactNode }[] = [
+    { value: 'Tilted Up High', label: 'Up High', icon: 'up-high' },
+    { value: 'Tilted Up', label: 'Up', icon: 'up' },
+    { value: 'Level View', label: 'Level', icon: 'level' },
+    { value: 'Tilted Down', label: 'Down', icon: 'down' },
+    { value: 'Tilted Down Low', label: 'Down Low', icon: 'down-low' },
 ];
 
 export const EXPRESSIONS: Expression[] = [

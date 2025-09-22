@@ -1,4 +1,6 @@
-export type Angle = 'Front View' | 'Three-Quarter Left' | 'Profile Left' | 'Three-Quarter Right' | 'Profile Right' | 'Slightly Above' | 'Slightly Below';
+export type AngleX = 'Profile Left' | 'Three-Quarter Left' | 'Front View' | 'Three-Quarter Right' | 'Profile Right';
+
+export type AngleY = 'Tilted Up High' | 'Tilted Up' | 'Level View' | 'Tilted Down' | 'Tilted Down Low';
 
 export type Expression = 'Neutral' | 'Smiling' | 'Laughing' | 'Sad' | 'Angry' | 'Surprised' | 'Thoughtful';
 
@@ -7,7 +9,8 @@ export type SubjectType = 'Male' | 'Female' | 'Non-binary' | 'Cartoon / 3D CGI C
 export type OutputResolution = '512x512' | '768x768' | '1024x1024';
 
 export interface GenerationConfig {
-  angle: Angle;
+  angleX: AngleX;
+  angleY: AngleY;
   expression: Expression;
   subjectType: SubjectType;
   outputResolution: OutputResolution;

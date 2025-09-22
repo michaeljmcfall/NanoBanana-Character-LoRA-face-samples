@@ -1,8 +1,9 @@
 
 import React from 'react';
-import type { GenerationConfig, Angle, Expression, SubjectType, OutputResolution } from '../types';
-import { ANGLES, EXPRESSIONS, SUBJECT_TYPES, OUTPUT_RESOLUTIONS } from '../constants';
+import type { GenerationConfig, Expression, SubjectType, OutputResolution } from '../types';
+import { EXPRESSIONS, SUBJECT_TYPES, OUTPUT_RESOLUTIONS } from '../constants';
 import Spinner from './Spinner';
+import AngleSelector from './AngleSelector';
 
 interface ControlPanelProps {
   config: GenerationConfig;
@@ -27,6 +28,8 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ config, setConfig, onGenera
   const handleToggleChange = (key: 'randomHair' | 'randomBackground' | 'randomClothing') => {
     setConfig(prev => ({ ...prev, [key]: !prev[key] }));
   };
+
+  const isObjectSubject = config.subjectType === 'Object';
 
   return (
     <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 space-y-6">
@@ -74,22 +77,18 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ config, setConfig, onGenera
       </div>
       
       {/* Angle Selector */}
-      <div>
-        <label htmlFor="angle" className="block text-sm font-medium text-gray-300 mb-2">Angle</label>
-        <select
-          id="angle"
-          name="angle"
-          value={config.angle}
-          onChange={(e) => handleSelectChange('angle', e.target.value as Angle)}
-          className="w-full bg-gray-900 border border-gray-600 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 sm:text-sm text-white"
-        >
-          {ANGLES.map(angle => <option key={angle}>{angle}</option>)}
-        </select>
-      </div>
+      <AngleSelector config={config} setConfig={setConfig} />
 
       {/* Expression Selector */}
       <div>
-        <label htmlFor="expression" className="block text-sm font-medium text-gray-300 mb-2">Expression</label>
+        <label htmlFor="expression" className="block text-sm font-medium text-gray-300 mb-2">
+            {isObjectSubject ? 'Lighting / Mood' : 'Expression'}
+        </label>
+        {isObjectSubject && (
+            <p className="text-xs text-gray-400 -mt-1 mb-2">
+                For objects, this controls the scene's lighting and mood.
+            </p>
+        )}
         <select
           id="expression"
           name="expression"
@@ -105,36 +104,38 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ config, setConfig, onGenera
       
       {/* Modifiers */}
       <div className="space-y-4">
-        <div>
-          <div className="flex justify-between items-center mb-1">
-            <label htmlFor="hair" className="block text-sm font-medium text-gray-300">Hair Style/Color</label>
-            <div className="flex items-center">
-              <span className="text-sm font-medium text-gray-400 mr-2">Random</span>
-              <button
-                type="button"
-                onClick={() => handleToggleChange('randomHair')}
-                className={`${config.randomHair ? 'bg-orange-600' : 'bg-gray-600'} relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-gray-800`}
-                role="switch"
-                aria-checked={config.randomHair}
-              >
-                <span
-                  aria-hidden="true"
-                  className={`${config.randomHair ? 'translate-x-5' : 'translate-x-0'} pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out`}
-                />
-              </button>
+        {!isObjectSubject && (
+          <div>
+            <div className="flex justify-between items-center mb-1">
+              <label htmlFor="hair" className="block text-sm font-medium text-gray-300">Hair Style/Color</label>
+              <div className="flex items-center">
+                <span className="text-sm font-medium text-gray-400 mr-2">Random</span>
+                <button
+                  type="button"
+                  onClick={() => handleToggleChange('randomHair')}
+                  className={`${config.randomHair ? 'bg-orange-600' : 'bg-gray-600'} relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-gray-800`}
+                  role="switch"
+                  aria-checked={config.randomHair}
+                >
+                  <span
+                    aria-hidden="true"
+                    className={`${config.randomHair ? 'translate-x-5' : 'translate-x-0'} pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out`}
+                  />
+                </button>
+              </div>
             </div>
+            <input
+              type="text"
+              name="hair"
+              id="hair"
+              value={config.hair}
+              onChange={handleInputChange}
+              disabled={config.randomHair}
+              placeholder={config.randomHair ? "Randomly generated" : "e.g., short, curly, blue"}
+              className="mt-1 block w-full bg-gray-900 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm text-white disabled:bg-gray-700 disabled:cursor-not-allowed"
+            />
           </div>
-          <input
-            type="text"
-            name="hair"
-            id="hair"
-            value={config.hair}
-            onChange={handleInputChange}
-            disabled={config.randomHair}
-            placeholder={config.randomHair ? "Randomly generated" : "e.g., short, curly, blue"}
-            className="mt-1 block w-full bg-gray-900 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm text-white disabled:bg-gray-700 disabled:cursor-not-allowed"
-          />
-        </div>
+        )}
         <div>
           <div className="flex justify-between items-center mb-1">
             <label htmlFor="background" className="block text-sm font-medium text-gray-300">Background</label>
@@ -165,6 +166,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ config, setConfig, onGenera
             className="mt-1 block w-full bg-gray-900 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm text-white disabled:bg-gray-700 disabled:cursor-not-allowed"
           />
         </div>
+        {!isObjectSubject && (
         <div>
           <div className="flex justify-between items-center mb-1">
             <label htmlFor="clothing" className="block text-sm font-medium text-gray-300">Clothing</label>
@@ -195,6 +197,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ config, setConfig, onGenera
             className="mt-1 block w-full bg-gray-900 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm text-white disabled:bg-gray-700 disabled:cursor-not-allowed"
           />
         </div>
+        )}
       </div>
       
       {/* Generate Button */}

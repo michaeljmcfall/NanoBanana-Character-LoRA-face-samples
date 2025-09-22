@@ -1,3 +1,4 @@
+
 import { GoogleGenAI, Modality } from "@google/genai";
 import type { GenerationConfig, OutputResolution } from '../types';
 
@@ -54,10 +55,11 @@ You can apply the following stylistic modifications if specified:
       return `
 You are an expert character artist and 3D modeler. Your task is to generate a new image of the character in the provided reference photo. The new image must strictly adhere to the following criteria:
 
-1.  **Angle:** ${config.angle}.
-2.  **Expression:** ${config.expression}.
-3.  **Subject Type:** ${config.subjectType}.
-4.  **Morphology and Design Preservation:** This is the most critical rule. You MUST preserve the character's unique physical structure, design features, art style, color palette, and proportions from the reference image. The generated image must look like the exact same character, just from a different angle and with a different expression.
+1.  **Horizontal Angle (Yaw):** ${config.angleX}. This is the side-to-side rotation of the subject.
+2.  **Vertical Angle (Pitch):** ${config.angleY}. This is the up-and-down tilt of the subject.
+3.  **Expression:** ${config.expression}.
+4.  **Subject Type:** ${config.subjectType}.
+5.  **Morphology and Design Preservation:** This is the most critical rule. You MUST preserve the character's unique physical structure, design features, art style, color palette, and proportions from the reference image. The generated image must look like the exact same character, just from a different angle and with a different expression.
 
 ${commonModifiers}
 
@@ -69,10 +71,11 @@ The output image must be a high-quality, professional digital artwork with a res
         return `
 You are an expert product and still life photographer. Your task is to generate a new image of the object in the provided reference photo. The new image must strictly adhere to the following criteria:
 
-1.  **Angle:** ${config.angle}.
-2.  **Lighting & Mood:** ${expressionAsLighting}
-3.  **Subject Type:** ${config.subjectType}.
-4.  **Design and Shape Preservation:** This is the most critical rule. You MUST preserve the object's unique structure, shape, texture, materials, colors, and any intricate details from the reference image. The generated image must look like the exact same object, just from a different angle and with different lighting.
+1.  **Horizontal Angle (Yaw):** ${config.angleX}. This is the side-to-side rotation of the subject.
+2.  **Vertical Angle (Pitch):** ${config.angleY}. This is the up-and-down tilt of the subject.
+3.  **Lighting & Mood:** ${expressionAsLighting}
+4.  **Subject Type:** ${config.subjectType}.
+5.  **Design and Shape Preservation:** This is the most critical rule. You MUST preserve the object's unique structure, shape, texture, materials, colors, and any intricate details from the reference image. The generated image must look like the exact same object, just from a different angle and with different lighting.
 
 You can apply the following stylistic modifications if specified:
 - **Background:** ${backgroundInstruction}
@@ -87,10 +90,11 @@ The output image must be a high-quality, photorealistic product shot with a reso
       return `
 You are an expert photorealistic image editor. Your task is to generate a new image of the person in the provided reference photo. The new image must strictly adhere to the following criteria:
 
-1.  **Angle:** ${config.angle}.
-2.  **Facial Expression:** ${config.expression}.
-3.  **Subject Type:** ${config.subjectType}.
-4.  **Identity Preservation:** This is the most critical rule. You MUST preserve the person's unique facial structure, features, skin texture, moles, scars, and any asymmetries from the reference image. The generated image must look like the exact same person, just from a different angle and with a different expression.
+1.  **Horizontal Angle (Yaw):** ${config.angleX}. This is the side-to-side rotation of the subject.
+2.  **Vertical Angle (Pitch):** ${config.angleY}. This is the up-and-down tilt of the subject.
+3.  **Facial Expression:** ${config.expression}.
+4.  **Subject Type:** ${config.subjectType}.
+5.  **Identity Preservation:** This is the most critical rule. You MUST preserve the person's unique facial structure, features, skin texture, moles, scars, and any asymmetries from the reference image. The generated image must look like the exact same person, just from a different angle and with a different expression.
 
 ${commonModifiers}
 

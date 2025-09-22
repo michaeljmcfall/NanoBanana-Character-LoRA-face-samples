@@ -2,7 +2,7 @@
 import React, { useState, useCallback } from 'react';
 import JSZip from 'jszip';
 import type { GenerationConfig, GeneratedImage, OptimizedImage, LogEntry, LogType, ReferenceImageInfo } from './types';
-import { ANGLES, EXPRESSIONS, SUBJECT_TYPES, OUTPUT_RESOLUTIONS } from './constants';
+import { ANGLES_X, ANGLES_Y, EXPRESSIONS, SUBJECT_TYPES, OUTPUT_RESOLUTIONS } from './constants';
 import Header from './components/Header';
 import ImageUploader from './components/ImageUploader';
 import ControlPanel from './components/ControlPanel';
@@ -37,7 +37,8 @@ const App: React.FC = () => {
 
 
   const [config, setConfig] = useState<GenerationConfig>({
-    angle: ANGLES[0],
+    angleX: ANGLES_X[2].value, // Front View
+    angleY: ANGLES_Y[2].value, // Level View
     expression: EXPRESSIONS[0],
     subjectType: SUBJECT_TYPES[0],
     outputResolution: OUTPUT_RESOLUTIONS[2], // Default to 1024x1024
@@ -74,7 +75,7 @@ const App: React.FC = () => {
     }
 
     setIsLoading(true);
-    addLog('info', `Generating ${config.outputResolution} image with angle: ${config.angle}, expression: ${config.expression}...`);
+    addLog('info', `Generating ${config.outputResolution} image with angle: ${config.angleX}, ${config.angleY}...`);
 
     try {
       const { mimeType, data } = extractMimeAndData(imageToGenerateFrom);

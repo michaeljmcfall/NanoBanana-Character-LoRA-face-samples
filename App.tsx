@@ -355,6 +355,9 @@ const App: React.FC = () => {
                         onSelect={handleSelectOptimized}
                         selectedImageId={selectedOptimizedImage?.id}
                     />
+                    <p className="text-xs text-gray-500 text-center px-2">
+                        NOTE: You may need to attempt 'Optimize Reference Image' several times if the output is blank or distorted; this can happen with low-resolution source images.
+                    </p>
                 </div>
             </div>
             

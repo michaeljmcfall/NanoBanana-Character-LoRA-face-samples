@@ -67,15 +67,13 @@ The output image must be a high-quality, professional digital artwork with a res
       `.trim();
     
     case 'Object':
-        const expressionAsLighting = `For an object, interpret '${config.expression}' as a lighting and mood instruction. For example, 'Smiling' could be bright, cheerful lighting, while 'Angry' could be harsh, dramatic, high-contrast lighting.`;
         return `
 You are an expert product and still life photographer. Your task is to generate a new image of the object in the provided reference photo. The new image must strictly adhere to the following criteria:
 
 1.  **Horizontal Angle (Yaw):** ${config.angleX}. This is the side-to-side rotation of the subject.
 2.  **Vertical Angle (Pitch):** ${config.angleY}. This is the up-and-down tilt of the subject.
-3.  **Lighting & Mood:** ${expressionAsLighting}
-4.  **Subject Type:** ${config.subjectType}.
-5.  **Design and Shape Preservation:** This is the most critical rule. You MUST preserve the object's unique structure, shape, texture, materials, colors, and any intricate details from the reference image. The generated image must look like the exact same object, just from a different angle and with different lighting.
+3.  **Subject Type:** ${config.subjectType}.
+4.  **Design and Shape Preservation:** This is the most critical rule. You MUST preserve the object's unique structure, shape, texture, materials, colors, and any intricate details from the reference image. The generated image must look like the exact same object, just from a different angle.
 
 You can apply the following stylistic modifications if specified:
 - **Background:** ${backgroundInstruction}
@@ -107,7 +105,7 @@ export async function generateImageVariation(
   base64ImageData: string,
   mimeType: string,
   config: GenerationConfig
-): Promise<string> {
+): Promise<{ newImageBase64: string; prompt: string }> {
   const prompt = buildPrompt(config);
 
   const response = await ai.models.generateContent({
@@ -132,7 +130,7 @@ export async function generateImageVariation(
 
   for (const part of response.candidates[0].content.parts) {
     if (part.inlineData) {
-      return part.inlineData.data;
+      return { newImageBase64: part.inlineData.data, prompt };
     }
   }
 
@@ -150,7 +148,7 @@ export async function optimizeReferenceImage(
   base64ImageData: string,
   mimeType: string,
   outputResolution: OutputResolution
-): Promise<string> {
+): Promise<{ newImageBase64: string; prompt: string }> {
   const [width, height] = outputResolution.split('x');
   const prompt = `
 You are a meticulous, expert photorealistic image editor. Your ONLY task is to prepare a reference headshot for a machine learning dataset. Precision and accuracy are paramount.
@@ -201,7 +199,7 @@ Follow this workflow strictly:
 
   for (const part of response.candidates[0].content.parts) {
     if (part.inlineData) {
-      return part.inlineData.data;
+      return { newImageBase64: part.inlineData.data, prompt };
     }
   }
 

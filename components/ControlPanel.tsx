@@ -82,22 +82,21 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ config, setConfig, onGenera
       {/* Expression Selector */}
       <div>
         <label htmlFor="expression" className="block text-sm font-medium text-gray-300 mb-2">
-            {isObjectSubject ? 'Lighting / Mood' : 'Expression'}
+            Facial Expression
         </label>
-        {isObjectSubject && (
-            <p className="text-xs text-gray-400 -mt-1 mb-2">
-                For objects, this controls the scene's lighting and mood.
-            </p>
-        )}
         <select
           id="expression"
           name="expression"
           value={config.expression}
           onChange={(e) => handleSelectChange('expression', e.target.value as Expression)}
-          className="w-full bg-gray-900 border border-gray-600 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 sm:text-sm text-white"
+          disabled={isObjectSubject}
+          className="w-full bg-gray-900 border border-gray-600 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 sm:text-sm text-white disabled:bg-gray-700 disabled:cursor-not-allowed disabled:text-gray-400"
         >
           {EXPRESSIONS.map(exp => <option key={exp}>{exp}</option>)}
         </select>
+        {isObjectSubject && (
+            <p className="text-xs text-gray-500 mt-1">Not applicable for 'Object' subject type.</p>
+        )}
       </div>
 
       <h3 className="text-lg font-semibold text-gray-300 pt-2 border-t border-gray-700">Optional Modifiers</h3>

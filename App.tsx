@@ -10,6 +10,7 @@ import ImageGallery from './components/ImageGallery';
 import OptimizedImageGallery from './components/OptimizedImageGallery';
 import Spinner from './components/Spinner';
 import LogPanel from './components/LogPanel';
+import PromptDisplay from './components/PromptDisplay';
 import ImageModal from './components/ImageModal';
 import Icon from './components/Icon';
 import Disclaimer from './components/Disclaimer';
@@ -26,6 +27,7 @@ const App: React.FC = () => {
   const [isOptimizing, setIsOptimizing] = useState<boolean>(false);
 
   const [logs, setLogs] = useState<LogEntry[]>([]);
+  const [lastPrompt, setLastPrompt] = useState<string>('');
   const [modalImageUrl, setModalImageUrl] = useState<string | null>(null);
   const [selectedImageIds, setSelectedImageIds] = useState<Set<string>>(new Set());
 
@@ -79,7 +81,8 @@ const App: React.FC = () => {
 
     try {
       const { mimeType, data } = extractMimeAndData(imageToGenerateFrom);
-      const newImageBase64 = await generateImageVariation(data, mimeType, config);
+      const { newImageBase64, prompt } = await generateImageVariation(data, mimeType, config);
+      setLastPrompt(prompt);
       
       const newImage: GeneratedImage = {
         id: new Date().toISOString(),
@@ -106,7 +109,8 @@ const App: React.FC = () => {
 
     try {
         const { mimeType, data } = extractMimeAndData(referenceImage.src);
-        const newImageBase64 = await optimizeReferenceImage(data, mimeType, config.outputResolution);
+        const { newImageBase64, prompt } = await optimizeReferenceImage(data, mimeType, config.outputResolution);
+        setLastPrompt(prompt);
 
         const newOptimizedImage: OptimizedImage = {
             id: new Date().toISOString(),
@@ -243,8 +247,14 @@ const App: React.FC = () => {
       addLog('success', `${selectedImageIds.size} images downloaded successfully.`);
     } catch (err) {
       console.error(err);
-      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred during download.';
-      addLog('error', `Download failed: ${errorMessage}`);
+      // FIX: The error object `err` is of type `unknown` and cannot be directly
+      // used as a string. Check if it's an instance of Error to safely
+      // access the message property.
+      let message = 'An unknown error occurred during download.';
+      if (err instanceof Error) {
+        message = err.message;
+      }
+      addLog('error', `Download failed: ${message}`);
     } finally {
       setIsDownloading(false);
     }
@@ -271,6 +281,7 @@ const App: React.FC = () => {
                 referenceImageResolution={referenceImageResolution}
               />
               <LogPanel logs={logs} />
+              <PromptDisplay prompt={lastPrompt} />
               <Disclaimer />
             </div>
           </div>

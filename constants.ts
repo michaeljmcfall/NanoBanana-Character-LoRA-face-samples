@@ -1,6 +1,8 @@
+
 import type { Expression, SubjectType, OutputResolution, AngleX, AngleY } from './types';
 
-export const ANGLES_X: { value: AngleX; label: string; icon: React.ReactNode }[] = [
+// Fix for error: Cannot find namespace 'React'. Changed icon type to string.
+export const ANGLES_X: { value: AngleX; label: string; icon: string }[] = [
   { value: 'Profile Left', label: 'Profile L', icon: 'profile-left' },
   { value: 'Three-Quarter Left', label: '3/4 L', icon: 'tq-left' },
   { value: 'Front View', label: 'Front', icon: 'front' },
@@ -8,7 +10,8 @@ export const ANGLES_X: { value: AngleX; label: string; icon: React.ReactNode }[]
   { value: 'Profile Right', label: 'Profile R', icon: 'profile-right' },
 ];
 
-export const ANGLES_Y: { value: AngleY; label: string; icon: React.ReactNode }[] = [
+// Fix for error: Cannot find namespace 'React'. Changed icon type to string.
+export const ANGLES_Y: { value: AngleY; label: string; icon: string }[] = [
     { value: 'Tilted Up High', label: 'Up High', icon: 'up-high' },
     { value: 'Tilted Up', label: 'Up', icon: 'up' },
     { value: 'Level View', label: 'Level', icon: 'level' },

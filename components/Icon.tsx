@@ -2,12 +2,13 @@
 import React from 'react';
 
 interface IconProps {
-  name: 'upload' | 'download' | 'refresh' | 'image' | 'view' | 'close' | 'trash' | 'check' | 'gemini';
+  name: 'upload' | 'download' | 'refresh' | 'image' | 'view' | 'close' | 'trash' | 'check' | 'gemini' | 'copy';
   className?: string;
 }
 
 const Icon: React.FC<IconProps> = ({ name, className = 'w-6 h-6' }) => {
-  const icons: Record<typeof name, JSX.Element> = {
+  // Fix for error: Cannot find namespace 'JSX'.
+  const icons = {
     upload: (
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0l-3.75 3.75M12 9.75l3.75 3.75M3 17.25V21h18v-3.75M4.5 12.75l7.5-7.5 7.5 7.5" />
@@ -58,6 +59,11 @@ const Icon: React.FC<IconProps> = ({ name, className = 'w-6 h-6' }) => {
           </linearGradient>
         </defs>
         <path fill="url(#gemini-gradient)" d="M12,0.5 L13,9 L21,10 L13,11 L12,19.5 L11,11 L3,10 L11,9 L12,0.5Z" />
+      </svg>
+    ),
+    copy: (
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 8.25V6a2.25 2.25 0 00-2.25-2.25H6A2.25 2.25 0 003.75 6v8.25A2.25 2.25 0 006 16.5h2.25m8.25-8.25H18a2.25 2.25 0 012.25 2.25v8.25A2.25 2.25 0 0118 21H9.75A2.25 2.25 0 017.5 18.75V16.5m8.25-8.25h-6.75" />
       </svg>
     ),
   };

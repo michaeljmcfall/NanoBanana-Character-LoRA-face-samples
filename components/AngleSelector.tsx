@@ -8,8 +8,9 @@ interface AngleSelectorProps {
   setConfig: React.Dispatch<React.SetStateAction<GenerationConfig>>;
 }
 
-const AngleIcon: React.FC<{ name: React.ReactNode, className?: string }> = ({ name, className }) => {
-    const icons: Record<string, JSX.Element> = {
+const AngleIcon: React.FC<{ name: string, className?: string }> = ({ name, className }) => {
+    // Fix for error: Cannot find namespace 'JSX'.
+    const icons = {
         'profile-left': <path d="M8 4v16h2V4H8zm6 2a4 4 0 00-4 4v4a4 4 0 004 4h2v-2h-2a2 2 0 01-2-2v-4a2 2 0 012-2h2V6h-2z" />,
         'tq-left': <path d="M10 6a4 4 0 00-4 4v4a4 4 0 004 4h2v-2h-2a2 2 0 01-2-2v-4a2 2 0 012-2h2V6h-2zM6 4h2v16H6V4z" />,
         'front': <path d="M10 6a4 4 0 00-4 4v4a4 4 0 004 4h4a4 4 0 004-4v-4a4 4 0 00-4-4h-4zm0 2h4a2 2 0 012 2v4a2 2 0 01-2 2h-4a2 2 0 01-2-2v-4a2 2 0 012-2z" />,
@@ -21,7 +22,7 @@ const AngleIcon: React.FC<{ name: React.ReactNode, className?: string }> = ({ na
         'down': <path d="M12 16l4-4H8l4 4zm0-10a6 6 0 00-6 6h2a4 4 0 014-4v-2z" />,
         'down-low': <path d="M12 20l4-4H8l4 4zM12 4a8 8 0 00-8 8h2a6 6 0 016-6v-2z" />,
     };
-    return <svg viewBox="0 0 24 24" fill="currentColor" className={className || "w-6 h-6"}>{icons[name as string]}</svg>
+    return <svg viewBox="0 0 24 24" fill="currentColor" className={className || "w-6 h-6"}>{icons[name]}</svg>
 };
 
 const VisualAid: React.FC<{ subjectType: SubjectType; expression: Expression }> = ({ subjectType, expression }) => {

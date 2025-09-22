@@ -14,10 +14,12 @@ import PromptDisplay from './components/PromptDisplay';
 import ImageModal from './components/ImageModal';
 import Icon from './components/Icon';
 import Disclaimer from './components/Disclaimer';
+import Usage from './components/Usage';
 import { generateImageVariation, optimizeReferenceImage } from './services/geminiService';
 
 const App: React.FC = () => {
   const [referenceImage, setReferenceImage] = useState<ReferenceImageInfo | null>(null);
+  const [isUploadingNewReference, setIsUploadingNewReference] = useState<boolean>(false);
   const [generatedImages, setGeneratedImages] = useState<GeneratedImage[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isDownloading, setIsDownloading] = useState<boolean>(false);
@@ -65,6 +67,7 @@ const App: React.FC = () => {
       setSelectedOptimizedImage(null);
       setSelectedImageIds(new Set());
       addLog('success', `Reference image uploaded (${img.naturalWidth}x${img.naturalHeight}).`);
+      setIsUploadingNewReference(false);
     };
     img.src = base64Image;
   }, [addLog]);
@@ -143,6 +146,7 @@ const App: React.FC = () => {
             });
             setSelectedOptimizedImage(null);
             addLog('info', `Set optimized version as new reference (${img.naturalWidth}x${img.naturalHeight}).`);
+            setIsUploadingNewReference(false);
           }
           img.src = selectedOptimizedImage.src;
       }
@@ -170,6 +174,7 @@ const App: React.FC = () => {
       setSelectedOptimizedImage(null);
       window.scrollTo({ top: 0, behavior: 'smooth' });
       addLog('info', `Set generated image as new reference (${img.naturalWidth}x${img.naturalHeight}).`);
+      setIsUploadingNewReference(false);
     };
     img.src = imageSrc;
   }, [addLog]);
@@ -248,12 +253,9 @@ const App: React.FC = () => {
     } catch (err) {
       console.error(err);
       // FIX: The error object `err` is of type `unknown` and cannot be directly
-      // used as a string. Check if it's an instance of Error to safely
-      // access the message property.
-      let message = 'An unknown error occurred during download.';
-      if (err instanceof Error) {
-        message = err.message;
-      }
+      // used as a string. This is fixed by checking if `err` is an instance of
+      // Error before safely accessing the message property.
+      const message = err instanceof Error ? err.message : 'An unknown error occurred during download.';
       addLog('error', `Download failed: ${message}`);
     } finally {
       setIsDownloading(false);
@@ -282,6 +284,7 @@ const App: React.FC = () => {
               />
               <LogPanel logs={logs} />
               <PromptDisplay prompt={lastPrompt} />
+              <Usage />
               <Disclaimer />
             </div>
           </div>
@@ -290,7 +293,19 @@ const App: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
                 <div className="space-y-4">
                     <h2 className="text-2xl font-bold text-orange-400">Reference Image</h2>
-                    {referenceImage ? (
+                    {(!referenceImage || isUploadingNewReference) ? (
+                      <div className="space-y-4">
+                        <ImageUploader onImageUpload={handleImageUpload} />
+                        {isUploadingNewReference && (
+                           <button
+                             onClick={() => setIsUploadingNewReference(false)}
+                             className="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+                           >
+                             Cancel Change
+                           </button>
+                        )}
+                      </div>
+                    ) : (
                     <div className="bg-gray-800 p-4 rounded-xl border border-gray-700 space-y-4">
                         <div
                           className="relative group cursor-pointer"
@@ -317,6 +332,12 @@ const App: React.FC = () => {
                             </button>
                         )}
                         <button
+                          onClick={() => setIsUploadingNewReference(true)}
+                          className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+                        >
+                          Change Reference Image
+                        </button>
+                        <button
                             onClick={handleOptimize}
                             disabled={isOptimizing || !referenceImage}
                             className="w-full flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 focus:ring-offset-gray-800 disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors"
@@ -324,8 +345,6 @@ const App: React.FC = () => {
                             {isOptimizing ? <Spinner /> : 'Optimize Reference Image'}
                         </button>
                     </div>
-                    ) : (
-                    <ImageUploader onImageUpload={handleImageUpload} />
                     )}
                 </div>
                 

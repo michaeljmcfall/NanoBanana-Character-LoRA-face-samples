@@ -41,7 +41,7 @@ const App: React.FC = () => {
 
 
   const [config, setConfig] = useState<GenerationConfig>({
-    angleX: ANGLES_X[2].value, // Front View
+    angleX: ANGLES_X[3].value, // Front View
     angleY: ANGLES_Y[2].value, // Level View
     expression: EXPRESSIONS[0],
     subjectType: SUBJECT_TYPES[0],
@@ -252,9 +252,8 @@ const App: React.FC = () => {
       addLog('success', `${selectedImageIds.size} images downloaded successfully.`);
     } catch (err) {
       console.error(err);
-      // Fix: The error object `err` is of type `unknown` and cannot be directly
-      // used as a string. This is fixed by checking if `err` is an instance of
-      // Error before safely accessing the message property.
+      // FIX: The error object `err` from a `catch` block is of type `unknown`.
+      // It must be checked to be an instance of `Error` before safely accessing its `message` property.
       const message = err instanceof Error ? err.message : 'An unknown error occurred during download.';
       addLog('error', `Download failed: ${message}`);
     } finally {

@@ -5,7 +5,9 @@ import type { Expression, SubjectType, OutputResolution, AngleX, AngleY } from '
 export const ANGLES_X: { value: AngleX; label: string; icon: string }[] = [
   { value: 'Profile Left', label: 'Profile L', icon: 'profile-left' },
   { value: 'Three-Quarter Left', label: '3/4 L', icon: 'tq-left' },
+  { value: 'Slight Left', label: 'Slight L', icon: 'slight-left' },
   { value: 'Front View', label: 'Front', icon: 'front' },
+  { value: 'Slight Right', label: 'Slight R', icon: 'slight-right' },
   { value: 'Three-Quarter Right', label: '3/4 R', icon: 'tq-right' },
   { value: 'Profile Right', label: 'Profile R', icon: 'profile-right' },
 ];

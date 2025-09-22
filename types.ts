@@ -1,4 +1,5 @@
-export type AngleX = 'Profile Left' | 'Three-Quarter Left' | 'Front View' | 'Three-Quarter Right' | 'Profile Right';
+
+export type AngleX = 'Profile Left' | 'Three-Quarter Left' | 'Slight Left' | 'Front View' | 'Slight Right' | 'Three-Quarter Right' | 'Profile Right';
 
 export type AngleY = 'Tilted Up High' | 'Tilted Up' | 'Level View' | 'Tilted Down' | 'Tilted Down Low';
 

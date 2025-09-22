@@ -1,6 +1,6 @@
 
 import { GoogleGenAI, Modality } from "@google/genai";
-import type { GenerationConfig, OutputResolution } from '../types';
+import type { GenerationConfig, OutputResolution, AngleX } from '../types';
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
 
@@ -21,8 +21,38 @@ const getRandomColor = (): { r: number; g: number; b: number } => {
   return { r, g, b };
 };
 
+/**
+ * Provides a detailed, unambiguous description for a given horizontal angle.
+ * This establishes a clear frame of reference (the viewer's perspective) for the AI model.
+ * @param angleX The selected horizontal angle.
+ * @returns A detailed string description.
+ */
+function getAngleXDescription(angleX: AngleX): string {
+  switch (angleX) {
+    case 'Profile Left':
+      return "Profile Left: A profile view of the subject's left side, with the subject looking towards the viewer's left.";
+    case 'Three-Quarter Left':
+      return "Three-Quarter Left: The subject is turned towards the viewer's left, showing more of their left side than their right.";
+    case 'Slight Left':
+      return "Slight Left: The subject is turned just slightly towards the viewer's left, away from the camera.";
+    case 'Front View':
+      return "Front View: A direct, front-facing view of the subject.";
+    case 'Slight Right':
+      return "Slight Right: The subject is turned just slightly towards the viewer's right, away from the camera.";
+    case 'Three-Quarter Right':
+      return "Three-Quarter Right: The subject is turned towards the viewer's right, showing more of their right side than their left.";
+    case 'Profile Right':
+      return "Profile Right: A profile view of the subject's right side, with the subject looking towards the viewer's right.";
+    default:
+      // This fallback should not be reached with the current types, but it's good practice.
+      return angleX;
+  }
+}
+
 
 function buildPrompt(config: GenerationConfig): string {
+  const angleXDescription = getAngleXDescription(config.angleX);
+
   const hairInstruction = config.randomHair
     ? `Randomly select a probabilistically likely hair style and color for a ${config.subjectType} subject.`
     : config.hair || 'Maintain original style and color.';
@@ -55,7 +85,7 @@ You can apply the following stylistic modifications if specified:
       return `
 You are an expert character artist and 3D modeler. Your task is to generate a new image of the character in the provided reference photo. The new image must strictly adhere to the following criteria:
 
-1.  **Horizontal Angle (Yaw):** ${config.angleX}. This is the side-to-side rotation of the subject.
+1.  **Horizontal Angle (Yaw):** ${angleXDescription}.
 2.  **Vertical Angle (Pitch):** ${config.angleY}. This is the up-and-down tilt of the subject.
 3.  **Expression:** ${config.expression}.
 4.  **Subject Type:** ${config.subjectType}.
@@ -70,7 +100,7 @@ The output image must be a high-quality, professional digital artwork with a res
         return `
 You are an expert product and still life photographer. Your task is to generate a new image of the object in the provided reference photo. The new image must strictly adhere to the following criteria:
 
-1.  **Horizontal Angle (Yaw):** ${config.angleX}. This is the side-to-side rotation of the subject.
+1.  **Horizontal Angle (Yaw):** ${angleXDescription}.
 2.  **Vertical Angle (Pitch):** ${config.angleY}. This is the up-and-down tilt of the subject.
 3.  **Subject Type:** ${config.subjectType}.
 4.  **Design and Shape Preservation:** This is the most critical rule. You MUST preserve the object's unique structure, shape, texture, materials, colors, and any intricate details from the reference image. The generated image must look like the exact same object, just from a different angle.
@@ -88,7 +118,7 @@ The output image must be a high-quality, photorealistic product shot with a reso
       return `
 You are an expert photorealistic image editor. Your task is to generate a new image of the person in the provided reference photo. The new image must strictly adhere to the following criteria:
 
-1.  **Horizontal Angle (Yaw):** ${config.angleX}. This is the side-to-side rotation of the subject.
+1.  **Horizontal Angle (Yaw):** ${angleXDescription}.
 2.  **Vertical Angle (Pitch):** ${config.angleY}. This is the up-and-down tilt of the subject.
 3.  **Facial Expression:** ${config.expression}.
 4.  **Subject Type:** ${config.subjectType}.

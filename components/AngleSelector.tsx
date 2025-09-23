@@ -234,7 +234,7 @@ const AngleSelector: React.FC<AngleSelectorProps> = ({ config, setConfig }) => {
       
       {/* Y-Axis Control */}
        <div className="space-y-2">
-        <label className="block text-xs font-medium text-gray-400">Vertical Angle (Pitch)</label>
+        <label className="block text-xs font-medium text-gray-400">Vertical Angle (Head Tilt)</label>
         <div className="grid grid-cols-5 gap-1">
           {[...ANGLES_Y].reverse().map(({ value, label, icon }) => (
             <button

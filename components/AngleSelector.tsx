@@ -1,4 +1,3 @@
-
 import React from 'react';
 import type { GenerationConfig, AngleX, AngleY, SubjectType, Expression } from '../types';
 import { ANGLES_X, ANGLES_Y } from '../constants';
@@ -185,7 +184,7 @@ const AngleSelector: React.FC<AngleSelectorProps> = ({ config, setConfig }) => {
       'Three-Quarter Right': 60,
       'Profile Right': 90,
     };
-    // Inverted for intuitive control: positive rotateX tilts "up" (away from viewer)
+    
     const yMap: Record<AngleY, number> = {
         'Tilted Up High': 30,
         'Tilted Up': 15,
@@ -193,13 +192,22 @@ const AngleSelector: React.FC<AngleSelectorProps> = ({ config, setConfig }) => {
         'Tilted Down': -15,
         'Tilted Down Low': -30,
     };
+
+    const isObject = config.subjectType === 'Object';
+    const verticalRotation = yMap[config.angleY] || 0;
+
+    // For objects, the camera angle is inverted from the head tilt.
+    // A high-angle camera (Tilted Up High) looks down, so we tilt the object's top face towards the viewer (negative rotateX).
+    // A low-angle camera (Tilted Down Low) looks up, so we tilt the object's bottom face towards the viewer (positive rotateX).
+    // Therefore, we flip the sign of the rotation for objects.
     return {
         y: xMap[config.angleX] || 0,
-        x: yMap[config.angleY] || 0,
+        x: isObject ? -verticalRotation : verticalRotation,
     }
   }
 
   const rotation = getRotation();
+  const isObject = config.subjectType === 'Object';
   const depth = 12; // Must match depth in VisualAid
 
   return (
@@ -235,7 +243,9 @@ const AngleSelector: React.FC<AngleSelectorProps> = ({ config, setConfig }) => {
       
       {/* Y-Axis Control */}
        <div className="space-y-2">
-        <label className="block text-xs font-medium text-gray-400">Vertical Angle (Head Tilt)</label>
+        <label className="block text-xs font-medium text-gray-400">
+          {isObject ? 'Camera Tilt Height' : 'Vertical Angle (Head Tilt)'}
+        </label>
         <div className="grid grid-cols-5 gap-1">
           {[...ANGLES_Y].reverse().map(({ value, label, icon }) => (
             <button

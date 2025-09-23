@@ -29,22 +29,39 @@ const getRandomColor = (): { r: number; g: number; b: number } => {
  * @returns A detailed string description.
  */
 function getAngleXDescription(angleX: AngleX, subjectType: SubjectType): string {
-  const subjectTerm = subjectType === 'Object' ? 'the object' : "the subject's face";
+  const isObject = subjectType === 'Object';
+  const subjectTerm = isObject ? 'the object' : "the subject's face";
+
   switch (angleX) {
     case 'Profile Left':
-      return `Profile Left (-90°): ${subjectTerm} is oriented directly towards the left edge of the frame.`;
+      const profileLeftTitle = isObject ? 'Left View' : 'Profile Left';
+      return `${profileLeftTitle} (-90°): ${subjectTerm} is oriented directly towards the left edge of the frame.`;
+    
     case 'Three-Quarter Left':
-      return `Three-Quarter Left (-45°): ${subjectTerm} is oriented partially towards the left side of the frame, at roughly a 45-degree angle away from the viewer.`;
+      const tqLeftTitle = isObject ? 'Three-Quarter Left View' : 'Three-Quarter Left';
+      return `${tqLeftTitle} (-45°): ${subjectTerm} is oriented partially towards the left side of the frame, at roughly a 45-degree angle away from the viewer.`;
+    
     case 'Slight Left':
-      return `Slight Left (-22.5°): ${subjectTerm} is oriented slightly towards the left side of the frame.`;
+      const slightLeftTitle = isObject ? 'Slight Left View' : 'Slight Left';
+      return `${slightLeftTitle} (-22.5°): ${subjectTerm} is oriented slightly towards the left side of the frame.`;
+    
     case 'Front View':
-      return `Front View (0°): The subject is looking directly forward, facing the viewer.`;
+      return isObject
+        ? `Front View (0°): The object is facing forward, towards the viewer.`
+        : `Front View (0°): The subject is looking directly forward, facing the viewer.`;
+    
     case 'Slight Right':
-      return `Slight Right (+22.5°): ${subjectTerm} is oriented slightly towards the right side of the frame.`;
+      const slightRightTitle = isObject ? 'Slight Right View' : 'Slight Right';
+      return `${slightRightTitle} (+22.5°): ${subjectTerm} is oriented slightly towards the right side of the frame.`;
+    
     case 'Three-Quarter Right':
-      return `Three-Quarter Right (+45°): ${subjectTerm} is oriented partially towards the right side of the frame, at roughly a 45-degree angle away from the viewer.`;
+      const tqRightTitle = isObject ? 'Three-Quarter Right View' : 'Three-Quarter Right';
+      return `${tqRightTitle} (+45°): ${subjectTerm} is oriented partially towards the right side of the frame, at roughly a 45-degree angle away from the viewer.`;
+    
     case 'Profile Right':
-      return `Profile Right (+90°): ${subjectTerm} is oriented directly towards the right edge of the frame.`;
+      const profileRightTitle = isObject ? 'Right View' : 'Profile Right';
+      return `${profileRightTitle} (+90°): ${subjectTerm} is oriented directly towards the right edge of the frame.`;
+    
     default:
       // This fallback should not be reached with the current types, but it's good practice.
       return angleX;

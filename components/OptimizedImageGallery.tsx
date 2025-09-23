@@ -11,7 +11,7 @@ interface OptimizedImageGalleryProps {
 
 const OptimizedImageGallery: React.FC<OptimizedImageGalleryProps> = ({ images, onSelect, selectedImageId }) => {
   return (
-    <div className="bg-gray-800 p-3 rounded-xl border border-gray-700 min-h-[15rem] flex items-center justify-center">
+    <div className="bg-gray-900/40 backdrop-blur-lg p-3 rounded-xl border border-white/10 min-h-[15rem] flex items-center justify-center">
       {images.length > 0 ? (
           <div className="grid grid-cols-3 gap-2 w-full">
           {images.map((image) => (

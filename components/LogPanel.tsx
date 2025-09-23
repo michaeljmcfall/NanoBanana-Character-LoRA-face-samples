@@ -14,7 +14,7 @@ const LOG_STYLES: Record<LogEntry['type'], string> = {
 
 const LogPanel: React.FC<LogPanelProps> = ({ logs }) => {
   return (
-    <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 space-y-4">
+    <div className="bg-gray-900/40 backdrop-blur-lg p-6 rounded-xl border border-white/10 space-y-4">
       <h2 className="text-2xl font-bold text-orange-400">Log</h2>
       <div className="bg-gray-900 rounded-lg p-3 h-48 overflow-y-auto">
         {logs.length > 0 ? (

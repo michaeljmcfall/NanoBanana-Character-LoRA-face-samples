@@ -3,7 +3,7 @@ import React from 'react';
 
 const Disclaimer: React.FC = () => {
   return (
-    <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 space-y-3">
+    <div className="bg-gray-900/40 backdrop-blur-lg p-6 rounded-xl border border-white/10 space-y-3">
       <h2 className="text-lg font-bold text-orange-400">Disclaimer</h2>
       <div className="text-sm text-gray-400 space-y-2">
         <p>

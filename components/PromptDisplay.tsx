@@ -20,7 +20,7 @@ const PromptDisplay: React.FC<PromptDisplayProps> = ({ prompt }) => {
   };
 
   return (
-    <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 space-y-4">
+    <div className="bg-gray-900/40 backdrop-blur-lg p-6 rounded-xl border border-white/10 space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-orange-400">Last Prompt Sent</h2>
         <button

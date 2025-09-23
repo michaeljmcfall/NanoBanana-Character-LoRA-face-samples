@@ -1,3 +1,4 @@
+
 import React from 'react';
 import type { GeneratedImage } from '../types';
 import Spinner from './Spinner';
@@ -43,7 +44,7 @@ const ImageCard: React.FC<{
 
   return (
     <div 
-      className="group relative bg-gray-800 border border-gray-700 rounded-xl overflow-hidden aspect-square cursor-pointer"
+      className="group relative bg-gray-900/40 backdrop-blur-sm border border-white/10 rounded-xl overflow-hidden aspect-square cursor-pointer"
       onClick={onView}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onView() }}
       role="button"
@@ -137,7 +138,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
               </div>
           )}
       </div>
-      <div className="bg-gray-800 p-4 rounded-xl border border-gray-700 min-h-[20rem]">
+      <div className="bg-gray-900/40 backdrop-blur-lg p-4 rounded-xl border border-white/10 min-h-[20rem]">
         {(isLoading && images.length === 0) ? (
           <div className="flex flex-col items-center justify-center h-full text-gray-400">
             <Spinner large />

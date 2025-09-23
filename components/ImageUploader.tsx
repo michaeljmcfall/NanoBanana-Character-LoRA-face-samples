@@ -59,14 +59,14 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUpload }) => {
   }, [onImageUpload]);
 
   return (
-    <div className="bg-gray-800 p-4 rounded-xl border border-dashed border-gray-600">
+    <div className="bg-gray-900/40 backdrop-blur-lg p-4 rounded-xl border border-dashed border-gray-600">
       <label
         htmlFor="image-upload"
         onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}
         onDragOver={handleDragOver}
         onDrop={handleDrop}
-        className={`flex flex-col items-center justify-center w-full h-64 rounded-lg cursor-pointer transition-colors ${isDragging ? 'bg-orange-900/50 border-orange-500' : 'hover:bg-gray-700/50'}`}
+        className={`flex flex-col items-center justify-center w-full h-64 rounded-lg cursor-pointer transition-colors ${isDragging ? 'bg-orange-900/50 border-orange-500' : 'hover:bg-white/10'}`}
       >
         <div className="flex flex-col items-center justify-center pt-5 pb-6 text-center">
           <Icon name="upload" className="w-10 h-10 mb-3 text-gray-400" />

@@ -32,7 +32,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ config, setConfig, onGenera
   const isObjectSubject = config.subjectType === 'Object';
 
   return (
-    <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 space-y-6">
+    <div className="bg-gray-900/40 backdrop-blur-lg p-6 rounded-xl border border-white/10 space-y-6">
       <h2 className="text-2xl font-bold text-orange-400">Generation Controls</h2>
 
       {/* Input Resolution */}

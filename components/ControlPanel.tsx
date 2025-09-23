@@ -25,7 +25,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ config, setConfig, onGenera
     setConfig(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleToggleChange = (key: 'randomHair' | 'randomBackground' | 'randomClothing') => {
+  const handleToggleChange = (key: 'randomHair' | 'randomBackground' | 'randomClothing' | 'lockGaze') => {
     setConfig(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
@@ -80,8 +80,8 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ config, setConfig, onGenera
       <AngleSelector config={config} setConfig={setConfig} />
 
       {/* Expression Selector */}
-      <div>
-        <label htmlFor="expression" className="block text-sm font-medium text-gray-300 mb-2">
+      <div className="space-y-3">
+        <label htmlFor="expression" className="block text-sm font-medium text-gray-300">
             Facial Expression
         </label>
         <select
@@ -95,9 +95,34 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ config, setConfig, onGenera
           {EXPRESSIONS.map(exp => <option key={exp}>{exp}</option>)}
         </select>
         {isObjectSubject && (
+            <p className="text-xs text-gray-500 -mt-2">Not applicable for 'Object' subject type.</p>
+        )}
+      </div>
+
+       {/* Gaze Lock Switch */}
+      <div className={`transition-opacity ${isObjectSubject ? 'opacity-50' : 'opacity-100'}`}>
+        <div className="flex justify-between items-center">
+            <label htmlFor="lockGaze" className="block text-sm font-medium text-gray-300">Lock Gaze on Viewer</label>
+            <button
+                type="button"
+                onClick={() => handleToggleChange('lockGaze')}
+                disabled={isObjectSubject}
+                className={`${config.lockGaze ? 'bg-orange-600' : 'bg-gray-600'} relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-gray-800 disabled:cursor-not-allowed`}
+                role="switch"
+                aria-checked={config.lockGaze}
+                id="lockGaze"
+            >
+                <span
+                aria-hidden="true"
+                className={`${config.lockGaze ? 'translate-x-5' : 'translate-x-0'} pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out`}
+                />
+            </button>
+        </div>
+        {isObjectSubject && (
             <p className="text-xs text-gray-500 mt-1">Not applicable for 'Object' subject type.</p>
         )}
       </div>
+
 
       <h3 className="text-lg font-semibold text-gray-300 pt-2 border-t border-gray-700">Optional Modifiers</h3>
       

@@ -15,6 +15,7 @@ export interface GenerationConfig {
   expression: Expression;
   subjectType: SubjectType;
   outputResolution: OutputResolution;
+  lockGaze: boolean;
   hair: string;
   randomHair: boolean;
   background: string;

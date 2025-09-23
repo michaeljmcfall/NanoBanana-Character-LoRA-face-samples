@@ -102,65 +102,76 @@ function buildPrompt(config: GenerationConfig): string {
     ? `Randomly select a probabilistically likely clothing style for a ${config.subjectType} subject.`
     : config.clothing || 'Maintain original clothing style.';
     
-  const [width, height] = config.outputResolution.split('x');
+  const isHumanoid = config.subjectType !== 'Object';
 
-  const commonModifiers = `
+  let commonModifiers: string;
+  if (isHumanoid) {
+    commonModifiers = `
 You can apply the following stylistic modifications if specified:
 - **Hair:** ${hairInstruction}
 - **Clothing:** ${clothingInstruction}
 - **Background:** ${backgroundInstruction}
-  `.trim();
+    `.trim();
+  } else { // Is Object
+    commonModifiers = `
+You can apply the following stylistic modifications if specified:
+- **Background:** ${backgroundInstruction}
+    `.trim();
+  }
 
+  const criteriaPoints: string[] = [];
+  criteriaPoints.push(`1.  **Horizontal Angle (Yaw):** ${angleXDescription}.`);
+  criteriaPoints.push(`2.  **Vertical Angle (Head Tilt):** ${angleYDescription}`);
+  
+  if (isHumanoid) {
+    criteriaPoints.push(`3.  **Facial Expression:** ${config.expression}.`);
+    if (config.lockGaze) {
+      criteriaPoints.push(`4.  **Gaze Direction:** Locked on the viewer. The subject's irises and pupils must be directed straight at the camera, as if making direct eye contact.\n    **CRITICAL GAZE NUANCE:** This instruction applies ONLY to the rotation of the eyes within their sockets. You MUST preserve the original shape, size, color, spacing, and any asymmetries (like strabismus or a lazy eye) of the eyes from the reference image. Do not 'correct' or beautify the eyes; simply rotate them to look at the viewer while maintaining their unique, original characteristics.`);
+    }
+  }
+
+  const subjectTypePointNumber = isHumanoid ? (config.lockGaze ? 5 : 4) : 3;
+  criteriaPoints.push(`${subjectTypePointNumber}.  **Subject Type:** ${config.subjectType}.`);
+
+  const preservationPointNumber = subjectTypePointNumber + 1;
+  let preservationRule: string;
+  let intro: string;
+  
   switch (config.subjectType) {
     case 'Cartoon / 3D CGI Character':
     case 'Humanoid Creature':
-      return `
-You are an expert character artist and 3D modeler. Your task is to generate a new image of the character in the provided reference photo. The new image must strictly adhere to the following criteria:
-
-1.  **Horizontal Angle (Yaw):** ${angleXDescription}.
-2.  **Vertical Angle (Head Tilt):** ${angleYDescription}
-3.  **Expression:** ${config.expression}.
-4.  **Subject Type:** ${config.subjectType}.
-5.  **Morphology and Design Preservation:** This is the most critical rule. You MUST preserve the character's unique physical structure, design features, art style, color palette, and proportions from the reference image. The generated image must look like the exact same character, just from a different angle and with a different expression.
-
-${commonModifiers}
-
-The output image must be a high-quality, professional digital artwork with a resolution of ${width}x${height} pixels. Do not add any text or watermarks.
-      `.trim();
+      intro = 'You are an expert character artist and 3D modeler. Your task is to generate a new image of the character in the provided reference photo.';
+      preservationRule = "Morphology and Design Preservation: This is the most critical rule. You MUST preserve the character's unique physical structure, design features, art style, color palette, and proportions from the reference image. The generated image must look like the exact same character, just from a different angle and with a different expression.";
+      break;
     
     case 'Object':
-        return `
-You are an expert product and still life photographer. Your task is to generate a new image of the object in the provided reference photo. The new image must strictly adhere to the following criteria:
-
-1.  **Horizontal Angle (Yaw):** ${angleXDescription}.
-2.  **Vertical Angle (Head Tilt):** ${angleYDescription}
-3.  **Subject Type:** ${config.subjectType}.
-4.  **Design and Shape Preservation:** This is the most critical rule. You MUST preserve the object's unique structure, shape, texture, materials, colors, and any intricate details from the reference image. The generated image must look like the exact same object, just from a different angle.
-
-You can apply the following stylistic modifications if specified:
-- **Background:** ${backgroundInstruction}
-
-The output image must be a high-quality, photorealistic product shot with a resolution of ${width}x${height} pixels. Do not add any text or watermarks.
-      `.trim();
+      intro = 'You are an expert product and still life photographer. Your task is to generate a new image of the object in the provided reference photo.';
+      preservationRule = "Design and Shape Preservation: This is the most critical rule. You MUST preserve the object's unique structure, shape, texture, materials, colors, and any intricate details from the reference image. The generated image must look like the exact same object, just from a different angle.";
+      break;
 
     case 'Male':
     case 'Female':
     case 'Non-binary':
     default:
-      return `
-You are an expert photorealistic image editor. Your task is to generate a new image of the person in the provided reference photo. The new image must strictly adhere to the following criteria:
+      intro = 'You are an expert photorealistic image editor. Your task is to generate a new image of the person in the provided reference photo.';
+      preservationRule = "Identity Preservation: This is the most critical rule. You MUST preserve the person's unique facial structure, features, skin texture, moles, scars, and any asymmetries from the reference image. The generated image must look like the exact same person, just from a different angle and with a different expression.";
+      break;
+  }
+  
+  criteriaPoints.push(`${preservationPointNumber}.  **${preservationRule}`);
+  
+  const criteria = criteriaPoints.join('\n');
+  const [width, height] = config.outputResolution.split('x');
+  
+  return `
+${intro} The new image must strictly adhere to the following criteria:
 
-1.  **Horizontal Angle (Yaw):** ${angleXDescription}.
-2.  **Vertical Angle (Head Tilt):** ${angleYDescription}
-3.  **Facial Expression:** ${config.expression}.
-4.  **Subject Type:** ${config.subjectType}.
-5.  **Identity Preservation:** This is the most critical rule. You MUST preserve the person's unique facial structure, features, skin texture, moles, scars, and any asymmetries from the reference image. The generated image must look like the exact same person, just from a different angle and with a different expression.
+${criteria}
 
 ${commonModifiers}
 
-The output image must be a high-quality, photorealistic portrait with a resolution of ${width}x${height} pixels. Do not add any text or watermarks.
-      `.trim();
-  }
+The output image must be a high-quality, ${config.subjectType === 'Object' ? 'photorealistic product shot' : (config.subjectType.includes('Cartoon') ? 'professional digital artwork' : 'photorealistic portrait')} with a resolution of ${width}x${height} pixels. Do not add any text or watermarks.
+  `.trim();
 }
 
 export async function generateImageVariation(

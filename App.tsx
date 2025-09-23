@@ -58,6 +58,7 @@ const App: React.FC = () => {
     expression: EXPRESSIONS[0],
     subjectType: SUBJECT_TYPES[0],
     outputResolution: OUTPUT_RESOLUTIONS[2], // Default to 1024x1024
+    lockGaze: false,
     hair: '',
     randomHair: false,
     background: '',

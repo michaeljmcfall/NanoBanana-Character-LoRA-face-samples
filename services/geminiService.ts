@@ -22,26 +22,26 @@ const getRandomColor = (): { r: number; g: number; b: number } => {
 
 /**
  * Provides a detailed, unambiguous description for a given horizontal angle from the viewer's perspective.
- * This prevents frame-of-reference errors and gives the AI a clear instruction.
+ * This prevents frame-of-reference errors by using the image frame as the coordinate system.
  * @param angleX The selected horizontal angle.
  * @returns A detailed string description.
  */
 function getAngleXDescription(angleX: AngleX): string {
   switch (angleX) {
     case 'Profile Left':
-      return "Profile Left: The subject has turned their head to face the viewer's right. The viewer sees the subject's left profile (left ear, left cheek). The subject's gaze is directed towards the right edge of the frame.";
+      return "Profile Left: The subject's face is oriented directly towards the right edge of the frame.";
     case 'Three-Quarter Left':
-      return "Three-Quarter Left: The subject's head is turned partially towards the viewer's right. The viewer sees most of the subject's left side of the face and a small part of their right side.";
+      return "Three-Quarter Left: The subject's face is oriented partially towards the right side of the frame, at roughly a 45-degree angle away from the viewer.";
     case 'Slight Left':
-      return "Slight Left: The subject's head is turned slightly towards the viewer's right, away from a direct frontal view. The viewer sees slightly more of the subject's left side of the face.";
+      return "Slight Left: The subject's face is oriented slightly towards the right side of the frame.";
     case 'Front View':
-      return "Front View: A direct, head-on view of the subject looking straight at the viewer.";
+      return "Front View: The subject is looking directly forward, facing the viewer.";
     case 'Slight Right':
-      return "Slight Right: The subject's head is turned slightly towards the viewer's left, away from a direct frontal view. The viewer sees slightly more of the subject's right side of the face.";
+      return "Slight Right: The subject's face is oriented slightly towards the left side of the frame.";
     case 'Three-Quarter Right':
-      return "Three-Quarter Right: The subject's head is turned partially towards the viewer's left. The viewer sees most of the subject's right side of the face and a small part of their left side.";
+      return "Three-Quarter Right: The subject's face is oriented partially towards the left side of the frame, at roughly a 45-degree angle away from the viewer.";
     case 'Profile Right':
-      return "Profile Right: The subject has turned their head to face the viewer's left. The viewer sees the subject's right profile (right ear, right cheek). The subject's gaze is directed towards the left edge of the frame.";
+      return "Profile Right: The subject's face is oriented directly towards the left edge of the frame.";
     default:
       // This fallback should not be reached with the current types, but it's good practice.
       return angleX;

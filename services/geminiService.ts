@@ -1,3 +1,4 @@
+
 import { GoogleGenAI, Modality } from "@google/genai";
 import type { GenerationConfig, OutputResolution, AngleX, AngleY, SubjectType } from '../types';
 
@@ -24,24 +25,26 @@ const getRandomColor = (): { r: number; g: number; b: number } => {
  * Provides a detailed, unambiguous description for a given horizontal angle from the viewer's perspective.
  * This prevents frame-of-reference errors by using the image frame as the coordinate system.
  * @param angleX The selected horizontal angle.
+ * @param subjectType The type of subject being generated.
  * @returns A detailed string description.
  */
-function getAngleXDescription(angleX: AngleX): string {
+function getAngleXDescription(angleX: AngleX, subjectType: SubjectType): string {
+  const subjectTerm = subjectType === 'Object' ? 'the object' : "the subject's face";
   switch (angleX) {
     case 'Profile Left':
-      return "Profile Left: The subject's face is oriented directly towards the right edge of the frame.";
+      return `Profile Left (-90°): ${subjectTerm} is oriented directly towards the left edge of the frame.`;
     case 'Three-Quarter Left':
-      return "Three-Quarter Left: The subject's face is oriented partially towards the right side of the frame, at roughly a 45-degree angle away from the viewer.";
+      return `Three-Quarter Left (-45°): ${subjectTerm} is oriented partially towards the left side of the frame, at roughly a 45-degree angle away from the viewer.`;
     case 'Slight Left':
-      return "Slight Left: The subject's face is oriented slightly towards the right side of the frame.";
+      return `Slight Left (-22.5°): ${subjectTerm} is oriented slightly towards the left side of the frame.`;
     case 'Front View':
-      return "Front View: The subject is looking directly forward, facing the viewer.";
+      return `Front View (0°): The subject is looking directly forward, facing the viewer.`;
     case 'Slight Right':
-      return "Slight Right: The subject's face is oriented slightly towards the left side of the frame.";
+      return `Slight Right (+22.5°): ${subjectTerm} is oriented slightly towards the right side of the frame.`;
     case 'Three-Quarter Right':
-      return "Three-Quarter Right: The subject's face is oriented partially towards the left side of the frame, at roughly a 45-degree angle away from the viewer.";
+      return `Three-Quarter Right (+45°): ${subjectTerm} is oriented partially towards the right side of the frame, at roughly a 45-degree angle away from the viewer.`;
     case 'Profile Right':
-      return "Profile Right: The subject's face is oriented directly towards the left edge of the frame.";
+      return `Profile Right (+90°): ${subjectTerm} is oriented directly towards the right edge of the frame.`;
     default:
       // This fallback should not be reached with the current types, but it's good practice.
       return angleX;
@@ -49,30 +52,43 @@ function getAngleXDescription(angleX: AngleX): string {
 }
 
 /**
- * Provides a detailed, unambiguous description for a given vertical angle (head tilt).
- * This encourages the AI to generate more realistic anatomical changes for humanoid subjects.
+ * Provides a detailed, unambiguous description for a given vertical angle (head tilt or camera pitch).
+ * This encourages the AI to generate more realistic anatomical changes for humanoid subjects and correct camera angles for objects.
  * @param angleY The selected vertical angle.
  * @param subjectType The type of subject being generated.
  * @returns A detailed string description.
  */
 function getAngleYDescription(angleY: AngleY, subjectType: SubjectType): string {
-  // For objects, maintain the simple, direct description.
+  // For objects, describe the camera's perspective relative to the object.
   if (subjectType === 'Object') {
-    return `${angleY}. This is the up-and-down tilt of the object.`;
+    switch (angleY) {
+        case 'Tilted Up High':
+            return "High-Angle View: The camera is positioned high above the object, looking down at it at a steep angle.";
+        case 'Tilted Up':
+            return "Slight High-Angle View: The camera is positioned slightly above the object, looking down at it.";
+        case 'Level View':
+            return "Eye-Level View: The camera is level with the object.";
+        case 'Tilted Down':
+            return "Slight Low-Angle View: The camera is positioned slightly below the object, looking up at it.";
+        case 'Tilted Down Low':
+            return "Low-Angle View: The camera is positioned low, looking up at the object from a steep angle.";
+        default:
+            return `${angleY}. This is the up-and-down camera angle relative to the object.`;
+    }
   }
 
   // For humanoids, provide nuanced descriptions focusing on head movement and anatomy.
   switch (angleY) {
     case 'Tilted Up High':
-      return "Tilted Up High: The subject's head is tilted far back, looking upwards. The chin is high, and the neck is stretched.";
+      return "Tilted Up High (+30°): The subject's head is tilted far back, looking upwards. The chin is high, and the neck is stretched.";
     case 'Tilted Up':
-      return "Tilted Up: The subject's head is tilted slightly back, looking slightly upwards. The chin is raised.";
+      return "Tilted Up (+15°): The subject's head is tilted slightly back, looking slightly upwards. The chin is raised.";
     case 'Level View':
-      return "Level View: The subject is looking straight ahead, with their head level.";
+      return "Level View (0°): The subject is looking straight ahead, with their head level.";
     case 'Tilted Down':
-      return "Tilted Down: The subject's head is tilted slightly forward, with the chin lowered towards the chest.";
+      return "Tilted Down (-15°): The subject's head is tilted slightly forward, with the chin lowered towards the chest.";
     case 'Tilted Down Low':
-      return "Tilted Down Low: The subject's head is tilted far forward, looking down towards their chest. This may cause the skin under the chin to compress.";
+      return "Tilted Down Low (-30°): The subject's head is tilted far forward, looking down towards their chest. This may cause the skin under the chin to compress.";
     default:
       // Fallback for safety, though should not be reached with current types.
       return `${angleY}. This is the up-and-down tilt of the subject.`;
@@ -107,16 +123,16 @@ function buildPrompt(config: GenerationConfig): string {
   }
 
   // Phase 2: Define Primary Transformations (Macro-level changes)
-  const angleXDescription = getAngleXDescription(config.angleX);
+  const angleXDescription = getAngleXDescription(config.angleX, config.subjectType);
   const angleYDescription = getAngleYDescription(config.angleY, config.subjectType);
   const [width, height] = config.outputResolution.split('x');
 
   const primaryTransformations = `
 ### PRIMARY TRANSFORMATIONS
 You will apply the following main changes to the subject from the reference image:
-1.  **New Angle (Yaw/Tilt):** The subject must be convincingly re-rendered from this new perspective:
+1.  **New Angle (Yaw/Pitch):** The subject must be convincingly re-rendered from this new perspective:
     -   **Horizontal (Yaw):** ${angleXDescription}
-    -   **Vertical (Tilt):** ${angleYDescription}
+    -   **Vertical (Pitch/Tilt):** ${angleYDescription}
 2.  **Output Format:** The final image must be ${width}x${height} pixels.
   `.trim();
 

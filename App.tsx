@@ -280,8 +280,8 @@ const App: React.FC = () => {
       addLog('success', `${selectedImageIds.size} images downloaded successfully.`);
     } catch (err) {
       console.error(err);
-      // FIX: The error object `err` from a `catch` block is of type `unknown`.
-      // It must be checked to be an instance of `Error` before safely accessing its `message` property.
+      // Fix: The error object 'err' from a catch block is of type 'unknown' and cannot be directly used as a string.
+      // This ensures it is safely handled by checking if it's an instance of Error before accessing its message property.
       const message = err instanceof Error ? err.message : 'An unknown error occurred during download.';
       addLog('error', `Download failed: ${message}`);
     } finally {

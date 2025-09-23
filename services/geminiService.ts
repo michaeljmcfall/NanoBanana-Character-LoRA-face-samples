@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Modality } from "@google/genai";
 import type { GenerationConfig, OutputResolution, AngleX, AngleY, SubjectType } from '../types';
 
@@ -22,27 +21,27 @@ const getRandomColor = (): { r: number; g: number; b: number } => {
 };
 
 /**
- * Provides a detailed, unambiguous description for a given horizontal angle.
- * This establishes a clear frame of reference (the viewer's perspective) for the AI model.
+ * Provides a detailed, unambiguous description for a given horizontal angle from the viewer's perspective.
+ * This prevents frame-of-reference errors and gives the AI a clear instruction.
  * @param angleX The selected horizontal angle.
  * @returns A detailed string description.
  */
 function getAngleXDescription(angleX: AngleX): string {
   switch (angleX) {
     case 'Profile Left':
-      return "Profile Left: A profile view of the subject's left side, with the subject looking towards the viewer's left.";
+      return "Profile Left: The subject has turned their head to face the viewer's right. The viewer sees the subject's left profile (left ear, left cheek). The subject's gaze is directed towards the right edge of the frame.";
     case 'Three-Quarter Left':
-      return "Three-Quarter Left: The subject is turned towards the viewer's left, showing more of their left side than their right.";
+      return "Three-Quarter Left: The subject's head is turned partially towards the viewer's right. The viewer sees most of the subject's left side of the face and a small part of their right side.";
     case 'Slight Left':
-      return "Slight Left: The subject is turned just slightly towards the viewer's left, away from the camera.";
+      return "Slight Left: The subject's head is turned slightly towards the viewer's right, away from a direct frontal view. The viewer sees slightly more of the subject's left side of the face.";
     case 'Front View':
-      return "Front View: A direct, front-facing view of the subject.";
+      return "Front View: A direct, head-on view of the subject looking straight at the viewer.";
     case 'Slight Right':
-      return "Slight Right: The subject is turned just slightly towards the viewer's right, away from the camera.";
+      return "Slight Right: The subject's head is turned slightly towards the viewer's left, away from a direct frontal view. The viewer sees slightly more of the subject's right side of the face.";
     case 'Three-Quarter Right':
-      return "Three-Quarter Right: The subject is turned towards the viewer's right, showing more of their right side than their left.";
+      return "Three-Quarter Right: The subject's head is turned partially towards the viewer's left. The viewer sees most of the subject's right side of the face and a small part of their left side.";
     case 'Profile Right':
-      return "Profile Right: A profile view of the subject's right side, with the subject looking towards the viewer's right.";
+      return "Profile Right: The subject has turned their head to face the viewer's left. The viewer sees the subject's right profile (right ear, right cheek). The subject's gaze is directed towards the left edge of the frame.";
     default:
       // This fallback should not be reached with the current types, but it's good practice.
       return angleX;
@@ -82,8 +81,55 @@ function getAngleYDescription(angleY: AngleY, subjectType: SubjectType): string 
 
 
 function buildPrompt(config: GenerationConfig): string {
+  // Phase 1: Define Persona and Core Objective based on Subject Type
+  let intro: string;
+  let preservationRule: string;
+
+  switch (config.subjectType) {
+    case 'Cartoon / 3D CGI Character':
+    case 'Humanoid Creature':
+      intro = 'You are an expert character artist and 3D modeler.';
+      preservationRule = "You MUST preserve the character's unique physical structure, design features, art style, color palette, and proportions from the reference image. This is Morphology and Design Preservation.";
+      break;
+    
+    case 'Object':
+      intro = 'You are an expert product and still life photographer.';
+      preservationRule = "You MUST preserve the object's unique structure, shape, texture, materials, colors, and any intricate details from the reference image. This is Design and Shape Preservation.";
+      break;
+
+    case 'Male':
+    case 'Female':
+    case 'Non-binary':
+    default:
+      intro = 'You are an expert photorealistic image editor.';
+      preservationRule = "You MUST preserve the person's unique facial structure, features, skin texture, moles, scars, and any asymmetries from the reference image. This is Identity Preservation.";
+      break;
+  }
+
+  // Phase 2: Define Primary Transformations (Macro-level changes)
   const angleXDescription = getAngleXDescription(config.angleX);
   const angleYDescription = getAngleYDescription(config.angleY, config.subjectType);
+  const [width, height] = config.outputResolution.split('x');
+
+  const primaryTransformations = `
+### PRIMARY TRANSFORMATIONS
+You will apply the following main changes to the subject from the reference image:
+1.  **New Angle (Yaw/Tilt):** The subject must be convincingly re-rendered from this new perspective:
+    -   **Horizontal (Yaw):** ${angleXDescription}
+    -   **Vertical (Tilt):** ${angleYDescription}
+2.  **Output Format:** The final image must be ${width}x${height} pixels.
+  `.trim();
+
+  // Phase 3: Define Secondary Modifications (Meso/Micro-level details)
+  const isHumanoid = config.subjectType !== 'Object';
+  const modificationPoints: string[] = [];
+
+  if (isHumanoid) {
+    modificationPoints.push(`- **Facial Expression:** Change the subject's expression to: **${config.expression}**.`);
+    if (config.lockGaze) {
+      modificationPoints.push(`- **Gaze Direction:** Lock the subject's gaze directly on the viewer/camera. See the 'Critical Nuances' section below for a rule on how to execute this.`);
+    }
+  }
 
   const hairInstruction = config.randomHair
     ? `Randomly select a probabilistically likely hair style and color for a ${config.subjectType} subject.`
@@ -92,7 +138,6 @@ function buildPrompt(config: GenerationConfig): string {
   let backgroundInstruction: string;
   if (config.randomBackground) {
     const { r, g, b } = getRandomColor();
-    // Instruct the model to use a specific random color for better variety.
     backgroundInstruction = `Solid color background with RGB value (${r}, ${g}, ${b}).`;
   } else {
     backgroundInstruction = config.background || 'Neutral studio gray background.';
@@ -101,78 +146,56 @@ function buildPrompt(config: GenerationConfig): string {
   const clothingInstruction = config.randomClothing
     ? `Randomly select a probabilistically likely clothing style for a ${config.subjectType} subject.`
     : config.clothing || 'Maintain original clothing style.';
-    
-  const isHumanoid = config.subjectType !== 'Object';
 
-  let commonModifiers: string;
   if (isHumanoid) {
-    commonModifiers = `
-You can apply the following stylistic modifications if specified:
-- **Hair:** ${hairInstruction}
-- **Clothing:** ${clothingInstruction}
-- **Background:** ${backgroundInstruction}
-    `.trim();
-  } else { // Is Object
-    commonModifiers = `
-You can apply the following stylistic modifications if specified:
-- **Background:** ${backgroundInstruction}
-    `.trim();
+    modificationPoints.push(`- **Hair:** ${hairInstruction}`);
+    modificationPoints.push(`- **Clothing:** ${clothingInstruction}`);
+  }
+  modificationPoints.push(`- **Background:** ${backgroundInstruction}`);
+  
+  const secondaryModifications = `
+### SECONDARY MODIFICATIONS
+Apply these modifications to the re-rendered subject:
+${modificationPoints.join('\n')}
+  `.trim();
+
+  // Phase 4: Define Critical Nuances and Constraints
+  const criticalNuances: string[] = [];
+  if (isHumanoid && config.lockGaze) {
+      criticalNuances.push(`- **GAZE NUANCE:** When executing the 'Gaze Direction' modification, you MUST adhere to this rule: This instruction applies ONLY to the rotation of the eyes within their sockets. You MUST preserve the original shape, size, color, spacing, and any asymmetries (like strabismus or a lazy eye) of the eyes from the reference image. Do not 'correct' or beautify the eyes; simply rotate them to look at the viewer while maintaining their unique, original characteristics.`);
   }
 
-  const criteriaPoints: string[] = [];
-  criteriaPoints.push(`1.  **Horizontal Angle (Yaw):** ${angleXDescription}.`);
-  criteriaPoints.push(`2.  **Vertical Angle (Head Tilt):** ${angleYDescription}`);
-  
-  if (isHumanoid) {
-    criteriaPoints.push(`3.  **Facial Expression:** ${config.expression}.`);
-    if (config.lockGaze) {
-      criteriaPoints.push(`4.  **Gaze Direction:** Locked on the viewer. The subject's irises and pupils must be directed straight at the camera, as if making direct eye contact.\n    **CRITICAL GAZE NUANCE:** This instruction applies ONLY to the rotation of the eyes within their sockets. You MUST preserve the original shape, size, color, spacing, and any asymmetries (like strabismus or a lazy eye) of the eyes from the reference image. Do not 'correct' or beautify the eyes; simply rotate them to look at the viewer while maintaining their unique, original characteristics.`);
-    }
-  }
+  const nuancesSection = criticalNuances.length > 0 
+    ? `
+### CRITICAL NUANCES & CONSTRAINTS
+These rules override any other interpretation and must be followed precisely:
+${criticalNuances.join('\n')}
+    `.trim()
+    : '';
 
-  const subjectTypePointNumber = isHumanoid ? (config.lockGaze ? 5 : 4) : 3;
-  criteriaPoints.push(`${subjectTypePointNumber}.  **Subject Type:** ${config.subjectType}.`);
-
-  const preservationPointNumber = subjectTypePointNumber + 1;
-  let preservationRule: string;
-  let intro: string;
-  
-  switch (config.subjectType) {
-    case 'Cartoon / 3D CGI Character':
-    case 'Humanoid Creature':
-      intro = 'You are an expert character artist and 3D modeler. Your task is to generate a new image of the character in the provided reference photo.';
-      preservationRule = "Morphology and Design Preservation: This is the most critical rule. You MUST preserve the character's unique physical structure, design features, art style, color palette, and proportions from the reference image. The generated image must look like the exact same character, just from a different angle and with a different expression.";
-      break;
-    
-    case 'Object':
-      intro = 'You are an expert product and still life photographer. Your task is to generate a new image of the object in the provided reference photo.';
-      preservationRule = "Design and Shape Preservation: This is the most critical rule. You MUST preserve the object's unique structure, shape, texture, materials, colors, and any intricate details from the reference image. The generated image must look like the exact same object, just from a different angle.";
-      break;
-
-    case 'Male':
-    case 'Female':
-    case 'Non-binary':
-    default:
-      intro = 'You are an expert photorealistic image editor. Your task is to generate a new image of the person in the provided reference photo.';
-      preservationRule = "Identity Preservation: This is the most critical rule. You MUST preserve the person's unique facial structure, features, skin texture, moles, scars, and any asymmetries from the reference image. The generated image must look like the exact same person, just from a different angle and with a different expression.";
-      break;
-  }
-  
-  criteriaPoints.push(`${preservationPointNumber}.  **${preservationRule}`);
-  
-  const criteria = criteriaPoints.join('\n');
-  const [width, height] = config.outputResolution.split('x');
-  
+  // Assemble the final prompt with a clear hierarchical structure
   return `
-${intro} The new image must strictly adhere to the following criteria:
+${intro} Your task is to generate a new image of the subject in the provided reference photo.
 
-${criteria}
+### CORE OBJECTIVE
+**This is the most important rule:** ${preservationRule}. The new image must look like the exact same ${config.subjectType.toLowerCase()}, just viewed differently. All modifications listed below are secondary to this core objective.
 
-${commonModifiers}
+---
 
-The output image must be a high-quality, ${config.subjectType === 'Object' ? 'photorealistic product shot' : (config.subjectType.includes('Cartoon') ? 'professional digital artwork' : 'photorealistic portrait')} with a resolution of ${width}x${height} pixels. Do not add any text or watermarks.
+${primaryTransformations}
+
+---
+
+${secondaryModifications}
+
+${nuancesSection ? '---\n\n' + nuancesSection : ''}
+
+---
+
+**Final Output:** Generate only the high-quality, final image. Do not add any text or watermarks.
   `.trim();
 }
+
 
 export async function generateImageVariation(
   base64ImageData: string,

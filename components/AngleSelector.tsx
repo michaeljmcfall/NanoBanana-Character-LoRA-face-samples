@@ -1,3 +1,4 @@
+
 import React from 'react';
 import type { GenerationConfig, AngleX, AngleY, SubjectType, Expression } from '../types';
 import { ANGLES_X, ANGLES_Y } from '../constants';
@@ -8,8 +9,8 @@ interface AngleSelectorProps {
 }
 
 const AngleIcon: React.FC<{ name: string, className?: string }> = ({ name, className }) => {
-    // Fix for error: Cannot find namespace 'JSX'.
-    const icons: Record<string, JSX.Element> = {
+    // Fix: Replaced JSX.Element with React.ReactElement to explicitly use the type from the React import and resolve the missing JSX namespace error.
+    const icons: Record<string, React.ReactElement> = {
         'profile-left': <path d="M8 4 L8 20 L2 12 Z M22 11 L10 11 L10 13 L22 13 Z" />,
         'tq-left': <path d="M13 6 L13 18 L5 12 Z" />,
         'slight-left': <path d="M15 8 L15 16 L9 12 Z" />,

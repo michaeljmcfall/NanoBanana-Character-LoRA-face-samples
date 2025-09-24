@@ -1,5 +1,4 @@
 
-
 import React, { useState, useCallback } from 'react';
 import JSZip from 'jszip';
 import type { GenerationConfig, GeneratedImage, OptimizedImage, LogEntry, LogType, ReferenceImageInfo, AngleX, AngleY } from './types';
@@ -18,7 +17,6 @@ import Disclaimer from './components/Disclaimer';
 import Usage from './components/Usage';
 import AngleTipModal from './components/AngleTipModal';
 import { generateImageVariation, optimizeReferenceImage } from './services/geminiService';
-import BackgroundCanvas from './components/BackgroundCanvas';
 
 const App: React.FC = () => {
   const [referenceImage, setReferenceImage] = useState<ReferenceImageInfo | null>(null);
@@ -282,8 +280,8 @@ const App: React.FC = () => {
       addLog('success', `${selectedImageIds.size} images downloaded successfully.`);
     } catch (err) {
       console.error(err);
-      // FIX: The error object 'err' from a catch block is of type 'unknown' and cannot be directly used as a string.
-      // This ensures it is safely handled by checking if it's an instance of Error before accessing its message property.
+      // FIX: The error object from a catch block is of type 'unknown'. This ensures it is safely
+      // handled by checking if it's an instance of Error before accessing its message property.
       const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred during download.';
       addLog('error', `Download failed: ${errorMessage}`);
     } finally {
@@ -310,8 +308,7 @@ const App: React.FC = () => {
 
 
   return (
-    <div className="min-h-screen text-gray-200 font-sans">
-      <BackgroundCanvas angleX={config.angleX} angleY={config.angleY} />
+    <div className="text-gray-200 font-sans">
       <Header />
       <main className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">

@@ -17,6 +17,22 @@
   }
 }
 </script>
+<style>
+  html {
+    /* Moved from body to html for robust, full-page fixed background */
+    background-color: #111827; /* bg-gray-900 */
+    background-image: 
+      linear-gradient(rgba(107, 114, 128, 0.15) 1px, transparent 1px),
+      linear-gradient(to right, rgba(107, 114, 128, 0.15) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-attachment: fixed;
+  }
+  body {
+    margin: 0;
+    padding: 0;
+    /* The background is now on the html element */
+  }
+</style>
 </head>
   <body>
     <div id="root"></div>
